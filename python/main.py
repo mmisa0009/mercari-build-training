@@ -23,7 +23,21 @@ app.add_middleware(
 def root():
     return {"message": "Hello, world!"}
 
+def load_items_from_json():
+    items_path = pathlib.Path(__file__).parent.resolve() / "items.json"
+    if items_path.exists():
+        with open(items_path, "r") as file:
+            items = json.load(file)
+    else:
+        items = []
+    return items
 
+
+def save_items_to_json(items):
+    items_path = pathlib.Path(__file__).parent.resolve() / "items.json"
+    with open(items_path, "w") as file:
+        json.dump(items, file, indent=2)
+        
 @app.post("/items")
 def add_item(item: Item):
     logger.info(f"Receive item: {name}")
@@ -32,19 +46,7 @@ def add_item(item: Item):
     save_items_to_json(items)
     return {"message": f"item received: {name}"}
 
-def load_items_from_json():
-    items_path = pathlib.Path(__file__).parent.resolve() / "items.json"
-    if items_path.exists():
-        with open(items_@ath, "r") as file:
-            items = json.load(file)
-    else:
-        items = []
-    return items
 
-def save_items_to_json(items):
-    items_path = pathlib.Path(__file__).parent.resolve() / "items.json"
-    with open(items_path, "w") as file:
-        json.dump(items, file, indent=2)
 
 @app.get("/items")
 def read_items():
