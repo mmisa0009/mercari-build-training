@@ -44,13 +44,16 @@ def save_items_to_json(items):
 def add_item(name: str = Form(...), category: str = Form(...)):
     logger.info(f"Received item: {name}")
     items = load_items_from_json()
-#made unique ID?
-    new_id = str(uuid.uuid4())
+    #made unique ID?
+    new_item_uuid = str(uuid.uuid4())
+    #find the highest existing ID and increment it so that i do not have to assign each number
+    item_ids = [item.get("id", 0) for item in items]
+    new_item_id = max(item_ids, default=0) +1
 
-    new_item = {"id": new_id, "name":name, "category":category}
+    new_item = {"id": new_item_id, "uuid": new_item_uuid, "name":name, "category":category}
     items.append(new_item)
     save_items_to_json(items)
-    return {"message": f"item received: {name}", "item_id": new_id}
+    return {"message": f"item received: {name}", "item_id": new_item_id, "item_uuid": new_item_uuid}
 
 
 
