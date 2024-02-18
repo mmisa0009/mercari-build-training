@@ -26,10 +26,10 @@ def root():
 
 def load_items_from_json():
     items_path = pathlib.Path(__file__).parent.resolve() / "items.json"
-    if items_path.exists():
+    try:
         with open(items_path, "r") as file:
             items = json.load(file)
-    else:
+    except FileNotFoundError:
         items = []
     return items
 
