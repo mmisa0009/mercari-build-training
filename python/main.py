@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import pathlib
+import uuid
 from fastapi import FastAPI, Form, HTTPException, Path
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -43,9 +44,13 @@ def save_items_to_json(items):
 def add_item(name: str = Form(...), category: str = Form(...)):
     logger.info(f"Received item: {name}")
     items = load_items_from_json()
-    items.append({"name": name, "category": category})
+#made unique ID?
+    new_id = str(uuid.uuid4())
+
+    new_item = {"id": new_id, "name":name, "category":category}
+    items.append(new_item)
     save_items_to_json(items)
-    return {"message": f"item received: {name}"}
+    return {"message": f"item received: {name}", "item_id": new_id}
 
 
 
