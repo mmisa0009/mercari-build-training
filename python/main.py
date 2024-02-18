@@ -70,7 +70,7 @@ async def get_image(image_name):
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int = Path(..., title="The ID of the item you want to retrieve")):
-    items = load_items_from_json()  # Assuming you have a function to load items
+    items = load_items_from_json()  
     item = next((item for item in items if item.get("id") == item_id), None)
 
     if item is None:
