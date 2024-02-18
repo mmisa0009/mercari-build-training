@@ -46,6 +46,9 @@ def save_items_to_json(items):
     with open(items_path, "w") as file:
         json.dump(items, file, indent=2)
 
+@app.get("/items")
+def read_items():
+    return {"message": "Listing items"}
 
 @app.get("/image/{image_name}")
 async def get_image(image_name):
