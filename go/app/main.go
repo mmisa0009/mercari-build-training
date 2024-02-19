@@ -48,7 +48,7 @@ func addItem(c echo.Context) error {
 	nextID++
 
 	newItem:= map[string]interface{}{"id": id, "name": name, "category": category}
-	items["items"] = append(items["items"].([]map[string]interface{}), newItem)
+	items["items"] = append(items["items"], newItem)
 
 	err = saveItems(items)
 	if err != nil {
@@ -62,15 +62,13 @@ func addItem(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func loadItems() (map[string]interface{}, error) {
+func loadItems() ([]map[string]interface{}, error) {
     file, err := os.ReadFile("items.json")
     if err != nil {
         return nil, err
     }
 
-    fmt.Println("File content:", string(file))
-
-    var items map[string]interface{}
+    var items []map[string]interface{}
     if err := json.Unmarshal(file, &items); err != nil {
         fmt.Println("Error unmarshalling JSON:", err)
         return nil, err
