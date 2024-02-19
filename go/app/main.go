@@ -77,7 +77,7 @@ func addItem(c echo.Context) error {
 
     message := fmt.Sprintf("item received: %s, Category:%s, ID: %d", name, category, id)
     imageDetails := ImageDetails{Name: file.Filename, Path: ImgDir + "/" + fileHash + ".jpg"}
-    res := Response{Message: message, ImageDetails: ImageDetails: imageDetails}
+    res := Response{Message: message, ImageDetails: imageDetails}
     return c.JSON(http.StatusOK, res)
 }
 
