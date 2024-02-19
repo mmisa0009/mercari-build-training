@@ -63,10 +63,10 @@ def add_item(name: str = Form(...), category: str = Form(...)):
 def read_items():
     return {"message": "Listing items"}
 
-images_path = FilePath("/Users/misaki/Desktop/mercari-build-training/python/images/")
+images_path = Path("/Users/misaki/Desktop/mercari-build-training/python/images/")
 
 @app.get("/image/{image_name}")
-async def get_image(image_name: str, images_path:Path("/Users/misaki/Desktop/mercari-build-training/python/images/")):
+async def get_image(image_name: str, images_path: Path = image_path):
     # Create image path
     image = images_path / image_name
 
