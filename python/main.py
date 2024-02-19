@@ -63,10 +63,10 @@ def add_item(name: str = Form(...), category: str = Form(...)):
 def read_items():
     return {"message": "Listing items"}
 
-images = Path("/Users/misaki/Desktop/mercari-build-training/python/images/default.jpg")
+images = Path("/Users/misaki/Desktop/mercari-build-training/python/images/")
 
 @app.get("/image/{image_name}")
-async def get_image(image_name):
+async def get_image(image_name: str, images_path:Path("/Users/misaki/Desktop/mercari-build-training/python/images/")):
     # Create image path
     image = images / image_name
 
@@ -82,8 +82,25 @@ async def get_image(image_name):
 @app.post("/upload")
 async def upload_image(file: UploadFile):
     image_name = hash_image(file.file)
-    saved_path = save_image_with_hash(file.file, hashed_name)
+    saved_path = save_image_with_hash(file.file, image_name)
     return {"image_name": image_name}
+
+def hash_image(file):
+    sha256 = hashlib.sha256()
+    while chunk := file.read(8192):  # Read in 8KB chunks
+        sha256.update(chunk)
+    return sha256.hexdigest()
+
+def save_image_with_hash(file, hashed_name):
+    # Create the images directory if it doesn't exist
+    images.mkdir(parents=True, exist_ok=True)
+
+    # Save the image with the hashed name
+    saved_path = images / (hashed_name + ".jpg")
+    with saved_path.open("wb") as dest, file:
+        dest.write(file.read())
+    
+    return saved_path
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int = Path(..., title="The ID of the item you want to retrieve")):
