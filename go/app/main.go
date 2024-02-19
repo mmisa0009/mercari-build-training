@@ -53,7 +53,12 @@ func addItem(c echo.Context) error {
     id := nextID
     nextID++
 
-    newItem := map[string]interface{}{"id": id, "name": name, "category": category}
+    newItem := map[string]interface{}{
+	    "id": id, 
+	    "name": name, 
+	    "category": category, "image_name": fileHash +".jpg",
+    
+    }
     items = append(items, newItem)
 
     err = saveItems(items)
@@ -63,8 +68,7 @@ func addItem(c echo.Context) error {
     }
 
     message := fmt.Sprintf("item received: %s, Category:%s, ID: %d", name, category, id)
-    res := Response{Message: message}
-
+    res := Response{Message: message, ImageDetails: ImageDetails{Name: file.Filename, Path: ImgDir + "/" + fileHash + ".jpg"}}
     return c.JSON(http.StatusOK, res)
 }
 
