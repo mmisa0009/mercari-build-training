@@ -67,6 +67,7 @@ images_path = pathlib.Path("/Users/misaki/Desktop/mercari-build-training/python/
 
 @app.get("/image/{image_name}")
 async def get_image(image_name: str, images_path: Path = images_path):
+    images_path = images_path or Path("/Users/misaki/Desktop/mercari-build-training/python/images/")
     # Create image path
     image = images_path / image_name
 
