@@ -77,18 +77,18 @@ func loadItems() ([]map[string]interface{}, error) {
     return items, nil
 }
 
-func saveItems(items map[string]interface{}) error {
-	data, err:= json.MarshalIndent(items, "","  ")
-	if err != nil {
-		return err
-	}
+func saveItems(items []map[string]interface{}) error {
+    data, err := json.MarshalIndent(items, "", "  ")
+    if err != nil {
+        return err
+    }
 
-	err = os.WriteFile("items.json", data, 0644)
-	if err != nil {
-		return err
-	}
+    err = os.WriteFile("items.json", data, 0644)
+    if err != nil {
+        return err
+    }
 
-	return nil
+    return nil
 }
 
 func getItems(c echo.Context) error {
