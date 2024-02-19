@@ -113,7 +113,7 @@ func getItemDetails(c echo.Context) error {
     }
 
     for _, item := range items["items"].([]map[string]interface{}) {
-        if id, ok := item["id"].(int); ok && strconv.Itoa(id) == itemID {
+        if id, ok := item["id"].(float64); ok && strconv.Itoa(int(id)) == itemID {
             return c.JSON(http.StatusOK, item)
         }
     }
