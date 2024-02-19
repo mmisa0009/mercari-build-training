@@ -132,7 +132,11 @@ func getImg(c echo.Context) error {
 		c.Logger().Debugf("Image not found: %s", imgPath)
 		imgPath = path.Join(ImgDir, "default.jpg")
 	}
-	return c.File(imgPath)
+
+	imageName := path.Base(imgPath)
+
+	res := Response{Message: "Image received", ImageDetails: ImageDetails{Name: imageName, Path: imgPath}}
+	return c.JSON(http.StatusOK, res)
 }
 
 func hashImage(file *multipart.FileHeader) string {
