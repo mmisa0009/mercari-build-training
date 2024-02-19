@@ -82,7 +82,7 @@ async def get_image(image_name: str, images_path: Path = images_path):
 @app.post("/upload")
 async def upload_image(file: UploadFile, images_path: Path = images_path):
     image_name = hash_image(file.file)
-    saved_path = save_image_with_hash(file.file, image_name)
+    saved_path = save_image_with_hash(file.file, image_name, images_path)
     return {"image_name": image_name}
 
 def hash_image(file):
@@ -96,7 +96,7 @@ def save_image_with_hash(file, hashed_name, images_path):
     images_path.mkdir(parents=True, exist_ok=True)
 
     # Save the image with the hashed name
-    saved_path = images / (hashed_name + ".jpg")
+    saved_path = images_path / (hashed_name + ".jpg")
     with saved_path.open("wb") as dest, file:
         dest.write(file.read())
     
