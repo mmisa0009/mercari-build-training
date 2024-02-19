@@ -2,7 +2,7 @@ import os
 import json
 import logging
 import pathlib
-import hashLib
+import hashlib
 import uuid
 from fastapi import FastAPI, Form, HTTPException, Path
 from fastapi.responses import FileResponse
