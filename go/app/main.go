@@ -33,33 +33,33 @@ func root(c echo.Context) error {
 }
 
 func addItem(c echo.Context) error {
-	// Get form data
-	name := c.FormValue("name")
-	category := c.FormValue("category")
-	c.Logger().Infof("Receive item: %s, Category: %s", name, category)
+    // Get form data
+    name := c.FormValue("name")
+    category := c.FormValue("category")
+    c.Logger().Infof("Receive item: %s, Category: %s", name, category)
 
-	items, err:= loadItems()
-	if err!=nil {
-		res:= Response{Message: "Error loading items"}
-		return c.JSON(http.StatusInternalServerError, res)
-	}
+    items, err := loadItems()
+    if err != nil {
+        res := Response{Message: "Error loading items"}
+        return c.JSON(http.StatusInternalServerError, res)
+    }
 
-	id := nextID
-	nextID++
+    id := nextID
+    nextID++
 
-	newItem:= map[string]interface{}{"id": id, "name": name, "category": category}
-	items["items"] = append(items["items"], newItem)
+    newItem := map[string]interface{}{"id": id, "name": name, "category": category}
+    items = append(items, newItem)
 
-	err = saveItems(items)
-	if err != nil {
-		res:= Response{Message: "Error saving item"}
-		return c.JSON(http.StatusInternalServerError, res)
-	}
+    err = saveItems(items)
+    if err != nil {
+        res := Response{Message: "Error saving item"}
+        return c.JSON(http.StatusInternalServerError, res)
+    }
 
-	message := fmt.Sprintf("item received: %s, Category:%s, ID: %d", name, category, id)
-	res := Response{Message: message}
+    message := fmt.Sprintf("item received: %s, Category:%s, ID: %d", name, category, id)
+    res := Response{Message: message}
 
-	return c.JSON(http.StatusOK, res)
+    return c.JSON(http.StatusOK, res)
 }
 
 func loadItems() ([]map[string]interface{}, error) {
