@@ -63,19 +63,19 @@ def add_item(name: str = Form(...), category: str = Form(...)):
 def read_items():
     return {"message": "Listing items"}
 
-images = Path("/Users/misaki/Desktop/mercari-build-training/python/images/")
+images_path = FilePath("/Users/misaki/Desktop/mercari-build-training/python/images/")
 
 @app.get("/image/{image_name}")
 async def get_image(image_name: str, images_path:Path("/Users/misaki/Desktop/mercari-build-training/python/images/")):
     # Create image path
-    image = images / image_name
+    image = images_path / image_name
 
     if not image_name.endswith(".jpg"):
         raise HTTPException(status_code=400, detail="Image path does not end with .jpg")
 
     if not image.exists():
         logger.debug(f"Image not found: {image}")
-        image = images / "default.jpg"
+        image = images_path / "default.jpg"
 
     return FileResponse(image)
 
@@ -93,7 +93,7 @@ def hash_image(file):
 
 def save_image_with_hash(file, hashed_name):
     # Create the images directory if it doesn't exist
-    images.mkdir(parents=True, exist_ok=True)
+    images_path.mkdir(parents=True, exist_ok=True)
 
     # Save the image with the hashed name
     saved_path = images / (hashed_name + ".jpg")
