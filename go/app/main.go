@@ -104,22 +104,22 @@ func getItems(c echo.Context) error {
 }
 
 func getItemDetails(c echo.Context) error {
-	itemID := c.Param("item_id")
+    itemID := c.Param("item_id")
 
-	items, err:= loadItems()
-	if err != nil {
-		res:= Response{Message: "Error loading items"}
-		return c.JSON(http.StatusInternalServerError, res)
-	}
+    items, err := loadItems()
+    if err != nil {
+        res := Response{Message: "Error loading items"}
+        return c.JSON(http.StatusInternalServerError, res)
+    }
 
-	for _, item := range items["items"].([]map[string]interface{}) {
-		if id, ok := item["id"].(int); ok && strconv.Itoa(id) == itemID {
-			return c.JSON(http.StatusOK, item)
-		}
-	}
+    for _, item := range items["items"].([]map[string]interface{}) {
+        if id, ok := item["id"].(int); ok && strconv.Itoa(id) == itemID {
+            return c.JSON(http.StatusOK, item)
+        }
+    }
 
-	res := Response{Message: "Item not found"}
-	return c.JSON(http.StatusNotFound, res)
+    res := Response{Message: "Item not found"}
+    return c.JSON(http.StatusNotFound, res)
 }
 				
 func getImg(c echo.Context) error {
