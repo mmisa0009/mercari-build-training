@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding 
 	"fmt"
 	"net/http"
 	"os"
@@ -28,7 +30,23 @@ func root(c echo.Context) error {
 func addItem(c echo.Context) error {
 	// Get form data
 	name := c.FormValue("name")
-	c.Logger().Infof("Receive item: %s", name)
+	category := c.FormValue("category")
+	c.Logger().Infof("Receive item: %s" Category: %s", name, category)
+
+	items, err:= loadItems()
+	if err!=nil {
+		res:= Response{Message: "Error loading items"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	newItem:= map[string]string{"name": name, "category": category}
+	items["items"] = append(items["items"].([]map[string]string)
+
+	err = saveItems(items)
+	if err != nil {
+		res:= Response{Message: "Error saving item"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
 
 	message := fmt.Sprintf("item received: %s", name)
 	res := Response{Message: message}
@@ -36,6 +54,63 @@ func addItem(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func loadItems() (map[string]interface{}, error) {
+	file, err:= os.ReadFile("items.json")
+	if err != nil {
+		return nil, err
+	}
+
+	var items map[string]interface{}
+	if err:= json.Unmarshal(file, &items); err != nil{
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func saveItems(items map[string]interface{}) error {
+	data, err:= json.MarshalIndent(items, "","  ")
+	iff err != nil {
+		return err
+	}
+
+	err = os.WriteFile("items.json", data, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getItems(c echo.Context) error {
+	items, err:= loadItems()
+	iff err!= nil {
+		res := Response{Message: "Error loading items"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	return c.JSON(http.StatusOK, items)
+}
+
+fund getItemDetails(c, echo.Context) error {
+	itemID := c.Param("item_id")
+
+	items, err:= loadItems()
+	if err != nil {
+		res:= Response{Message: "Error loading items"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	for _, item := range items["items"].([]map[string]interface{}) {
+		if id, ok := item["id"].(string); ok && id == itemID {
+			return c.JSON(http.StatusOK, item)
+		}
+	}
+
+	res := Response{Message: "Item not found"}
+	return c.JSON(http.StatusNotFound, res)
+}
+				
 func getImg(c echo.Context) error {
 	// Create image path
 	imgPath := path.Join(ImgDir, c.Param("imageFilename"))
@@ -49,6 +124,23 @@ func getImg(c echo.Context) error {
 		imgPath = path.Join(ImgDir, "default.jpg")
 	}
 	return c.File(imgPath)
+}
+
+func hashImage(file *multipart.FileHeader) string {
+	f, err:= file.Open()
+	if err != nil {
+		log.Error(err)
+		return ""
+	}
+	defer f.Close()
+
+	hash := sha256.New()
+	if _, err := io.Copy(hash, f); err != nil {
+		log.Error(err)
+		return ""
+	}
+
+	return fmt.Sprintf("%x", hash.Sum(nil))
 }
 
 func main() {
@@ -71,6 +163,8 @@ func main() {
 	// Routes
 	e.GET("/", root)
 	e.POST("/items", addItem)
+	e.GET("/items", getItems)
+	e.GET("/items/:item_id", getItemDetails)
 	e.GET("/image/:imageFilename", getImg)
 
 
