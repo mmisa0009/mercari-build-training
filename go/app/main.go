@@ -110,7 +110,7 @@ func getItemDetails(c echo.Context) error {
         return c.JSON(http.StatusInternalServerError, res)
     }
 
-    for _, item := range items["items"].([]map[string]interface{}) {
+    for _, item := range items {
         if id, ok := item["id"].(float64); ok && strconv.Itoa(int(id)) == itemID {
             return c.JSON(http.StatusOK, item)
         }
