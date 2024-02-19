@@ -20,6 +20,8 @@ const (
 	ImgDir = "images"
 )
 
+var nextID int=1
+
 type Response struct {
 	Message string `json:"message"`
 }
@@ -41,8 +43,11 @@ func addItem(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	newItem:= map[string]string{"name": name, "category": category}
-	items["items"] = append(items["items"].([]map[string]string), newItem)
+	id := nextID
+	nextID++
+
+	newItem:= map[string]interface{}{"id": id, "name": name, "category": category}
+	items["items"] = append(items["items"].([]map[string]interface{}), newItem)
 
 	err = saveItems(items)
 	if err != nil {
@@ -50,7 +55,7 @@ func addItem(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	message := fmt.Sprintf("item received: %s", name)
+	message := fmt.Sprintf("item received: %s, Category:%s, ID: %d", name, category, id)
 	res := Response{Message: message}
 
 	return c.JSON(http.StatusOK, res)
@@ -86,7 +91,7 @@ func saveItems(items map[string]interface{}) error {
 
 func getItems(c echo.Context) error {
 	items, err:= loadItems()
-	iff err!= nil {
+	if err!= nil {
 		res := Response{Message: "Error loading items"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
