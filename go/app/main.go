@@ -2,8 +2,10 @@ package main
 
 import (
 	"crypto/sha256"
-	"encoding 
+	"encoding/json"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path"
