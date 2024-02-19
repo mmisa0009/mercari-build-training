@@ -44,6 +44,14 @@ func addItem(c echo.Context) error {
     category := c.FormValue("category")
     c.Logger().Infof("Receive item: %s, Category: %s", name, category)
 
+    file, err:= c.FormFile("image")
+    if err != nil {
+	    res:= Response{Message: "Error getting file from form"}
+	    return c.JASON(http.StatusBadRequest, res)
+    }
+
+    fileHash := hashImage(file)
+
     items, err := loadItems()
     if err != nil {
         res := Response{Message: "Error loading items"}
@@ -68,7 +76,8 @@ func addItem(c echo.Context) error {
     }
 
     message := fmt.Sprintf("item received: %s, Category:%s, ID: %d", name, category, id)
-    res := Response{Message: message, ImageDetails: ImageDetails{Name: file.Filename, Path: ImgDir + "/" + fileHash + ".jpg"}}
+    imageDetails := ImageDetails{Name: file.Filename, Path: ImgDir + "/" + fileHash + ".jpg"}
+    res := Response{Message: message, ImageDetails: ImageDetails: imageDetails}
     return c.JSON(http.StatusOK, res)
 }
 
