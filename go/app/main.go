@@ -33,7 +33,7 @@ func addItem(c echo.Context) error {
 	// Get form data
 	name := c.FormValue("name")
 	category := c.FormValue("category")
-	c.Logger().Infof("Receive item: %s" Category: %s", name, category)
+	c.Logger().Infof("Receive item: %s, Category: %s", name, category)
 
 	items, err:= loadItems()
 	if err!=nil {
@@ -42,7 +42,7 @@ func addItem(c echo.Context) error {
 	}
 
 	newItem:= map[string]string{"name": name, "category": category}
-	items["items"] = append(items["items"].([]map[string]string)
+	items["items"] = append(items["items"].([]map[string]string), newItem)
 
 	err = saveItems(items)
 	if err != nil {
@@ -72,7 +72,7 @@ func loadItems() (map[string]interface{}, error) {
 
 func saveItems(items map[string]interface{}) error {
 	data, err:= json.MarshalIndent(items, "","  ")
-	iff err != nil {
+	if err != nil {
 		return err
 	}
 
@@ -94,7 +94,7 @@ func getItems(c echo.Context) error {
 	return c.JSON(http.StatusOK, items)
 }
 
-fund getItemDetails(c, echo.Context) error {
+func getItemDetails(c echo.Context) error {
 	itemID := c.Param("item_id")
 
 	items, err:= loadItems()
