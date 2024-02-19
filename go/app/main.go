@@ -23,8 +23,14 @@ const (
 
 var nextID int=1
 
+type ImageDetails struct {
+	Name string `json:"name"`
+	Path string `json:"path"`
+}
+
 type Response struct {
 	Message string `json:"message"`
+	ImageDetails ImageDetails `json:"imageDetails"`
 }
 
 func root(c echo.Context) error {
