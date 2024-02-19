@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import pathlib
+import hashLib
 import uuid
 from fastapi import FastAPI, Form, HTTPException, Path
 from fastapi.responses import FileResponse
@@ -62,6 +63,8 @@ def add_item(name: str = Form(...), category: str = Form(...)):
 def read_items():
     return {"message": "Listing items"}
 
+images = Path("/Users/misaki/Desktop/mercari-build-training/python/images/default.jpg")
+
 @app.get("/image/{image_name}")
 async def get_image(image_name):
     # Create image path
@@ -75,6 +78,12 @@ async def get_image(image_name):
         image = images / "default.jpg"
 
     return FileResponse(image)
+
+@app.post("/upload)
+async def upload_image(file: UploadFile):
+    image_name = hash_image(file.file)
+    saved_path = save_image_with_hash(file.file, hashed_name)
+    return {"image_name": image_name}
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int = Path(..., title="The ID of the item you want to retrieve")):
