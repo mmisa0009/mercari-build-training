@@ -66,7 +66,7 @@ def read_items():
 images_path = Path("/Users/misaki/Desktop/mercari-build-training/python/images/")
 
 @app.get("/image/{image_name}")
-async def get_image(image_name: str, images_path: Path = image_path):
+async def get_image(image_name: str, images_path: Path):
     # Create image path
     image = images_path / image_name
 
