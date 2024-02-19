@@ -4,7 +4,7 @@ import logging
 import pathlib
 import hashlib
 import uuid
-from fastapi import FastAPI, Form, HTTPException, Path
+from fastapi import FastAPI, Form, HTTPException, Path, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -63,10 +63,10 @@ def add_item(name: str = Form(...), category: str = Form(...)):
 def read_items():
     return {"message": "Listing items"}
 
-images_path = Path("/Users/misaki/Desktop/mercari-build-training/python/images/")
+images_path = pathlib.Path("/Users/misaki/Desktop/mercari-build-training/python/images/")
 
 @app.get("/image/{image_name}")
-async def get_image(image_name: str, images_path: Path):
+async def get_image(image_name: str, images_path: Path = images_path):
     # Create image path
     image = images_path / image_name
 
@@ -80,7 +80,7 @@ async def get_image(image_name: str, images_path: Path):
     return FileResponse(image)
 
 @app.post("/upload")
-async def upload_image(file: UploadFile):
+async def upload_image(file: UploadFile, images_path: Path = images_path):
     image_name = hash_image(file.file)
     saved_path = save_image_with_hash(file.file, image_name)
     return {"image_name": image_name}
@@ -91,7 +91,7 @@ def hash_image(file):
         sha256.update(chunk)
     return sha256.hexdigest()
 
-def save_image_with_hash(file, hashed_name):
+def save_image_with_hash(file, hashed_name, images_path):
     # Create the images directory if it doesn't exist
     images_path.mkdir(parents=True, exist_ok=True)
 
