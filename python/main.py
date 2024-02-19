@@ -7,11 +7,12 @@ import uuid
 from fastapi import FastAPI, Form, HTTPException, Path, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from typing import List
 
 app = FastAPI()
 logger = logging.getLogger("uvicorn")
 logger.level = logging.INFO
-images = pathlib.Path(__file__).parent.resolve() / "images"
+images_path = pathlib.Path("/Users/misaki/Desktop/mercari-build-training/python/images")
 origins = [os.environ.get("FRONT_URL", "http://localhost:3000")]
 app.add_middleware(
     CORSMiddleware,
@@ -61,13 +62,13 @@ def add_item(name: str = Form(...), category: str = Form(...)):
 
 @app.get("/items")
 def read_items():
-    return {"message": "Listing items"}
+    items = load_items_from_json()
+    formatted_items = [{"name": item["name"], "category": item["category"]} for item in items]
+    return {"items": formatted_items}
 
-images_path = pathlib.Path("/Users/misaki/Desktop/mercari-build-training/python/images/")
 
 @app.get("/image/{image_name}")
 async def get_image(image_name: str, images_path: Path = images_path):
-    images_path = images_path or Path("/Users/misaki/Desktop/mercari-build-training/python/images/")
     # Create image path
     image = images_path / image_name
 
@@ -100,7 +101,7 @@ def save_image_with_hash(file, hashed_name, images_path):
     saved_path = images_path / (hashed_name + ".jpg")
     with saved_path.open("wb") as dest, file:
         dest.write(file.read())
-    
+
     return saved_path
 
 @app.get("/items/{item_id}")
