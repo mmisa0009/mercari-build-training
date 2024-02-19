@@ -69,7 +69,7 @@ func loadItems() (map[string]interface{}, error) {
 
 	var items map[string]interface{}
 	if err:= json.Unmarshal(file, &items); err != nil{
-		fmt.Println{"Error unmarshalling JSON:", err)
+		fmt.Println("Error unmarshalling JSON:", err)
 		return nil, err
 	}
 
