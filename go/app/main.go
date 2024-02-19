@@ -63,19 +63,20 @@ func addItem(c echo.Context) error {
 }
 
 func loadItems() (map[string]interface{}, error) {
-	file, err:= os.ReadFile("items.json")
-	if err != nil {
-		fmt.Println("Error reading file:", err)
-		return nil, err
-	}
+    file, err := os.ReadFile("items.json")
+    if err != nil {
+        return nil, err
+    }
 
-	var items map[string]interface{}
-	if err:= json.Unmarshal(file, &items); err != nil{
-		fmt.Println("Error unmarshalling JSON:", err)
-		return nil, err
-	}
+    fmt.Println("File content:", string(file))
 
-	return items, nil
+    var items map[string]interface{}
+    if err := json.Unmarshal(file, &items); err != nil {
+        fmt.Println("Error unmarshalling JSON:", err)
+        return nil, err
+    }
+
+    return items, nil
 }
 
 func saveItems(items map[string]interface{}) error {
