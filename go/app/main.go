@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -110,7 +111,7 @@ func getItemDetails(c echo.Context) error {
 	}
 
 	for _, item := range items["items"].([]map[string]interface{}) {
-		if id, ok := item["id"].(int); ok && id == itemID {
+		if id, ok := item["id"].(int); ok && strconv.Itoa(id) == itemID {
 			return c.JSON(http.StatusOK, item)
 		}
 	}
