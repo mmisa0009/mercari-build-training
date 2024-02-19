@@ -79,7 +79,7 @@ async def get_image(image_name):
 
     return FileResponse(image)
 
-@app.post("/upload)
+@app.post("/upload")
 async def upload_image(file: UploadFile):
     image_name = hash_image(file.file)
     saved_path = save_image_with_hash(file.file, hashed_name)
