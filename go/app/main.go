@@ -65,7 +65,7 @@ func addItem(c echo.Context) error {
 func loadItems() (map[string]interface{}, error) {
 	file, err:= os.ReadFile("items.json")
 	if err != nil {
-		fmr.Println("Error reading file:", err)
+		fmt.Println("Error reading file:", err)
 		return nil, err
 	}
 
