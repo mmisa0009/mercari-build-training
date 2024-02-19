@@ -47,7 +47,7 @@ func addItem(c echo.Context) error {
     file, err:= c.FormFile("image")
     if err != nil {
 	    res:= Response{Message: "Error getting file from form"}
-	    return c.JASON(http.StatusBadRequest, res)
+	    return c.JSON(http.StatusBadRequest, res)
     }
 
     fileHash := hashImage(file)
