@@ -69,6 +69,7 @@ func loadItems() (map[string]interface{}, error) {
 
 	var items map[string]interface{}
 	if err:= json.Unmarshal(file, &items); err != nil{
+		fmt.PrintIn{"Error unmarshalling JSON:", err)
 		return nil, err
 	}
 
@@ -109,7 +110,7 @@ func getItemDetails(c echo.Context) error {
 	}
 
 	for _, item := range items["items"].([]map[string]interface{}) {
-		if id, ok := item["id"].(string); ok && id == itemID {
+		if id, ok := item["id"].(int); ok && id == itemID {
 			return c.JSON(http.StatusOK, item)
 		}
 	}
