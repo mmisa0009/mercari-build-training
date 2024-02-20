@@ -189,7 +189,7 @@ func searchItems(c echo.Context) error {
 		res := Response{Message: "Error searching items in the database"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
-	defer rows.CLose()
+	defer rows.Close()
 	
 	var items []map[string]interface{}
 	for rows.Next() {
