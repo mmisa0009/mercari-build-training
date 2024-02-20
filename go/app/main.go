@@ -177,8 +177,38 @@ func getItemDetails(c echo.Context) error {
 func searchItems(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
 
-	message := Response{Message: message}
-	return c.JSON(http.StatusOK, res)
+	db, err := initDB()
+	if err != nil {
+		res:= Response{Message: "Error initializing database"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT * FROM items WHERE name LIKE ?", "%"+ keyword+"%")
+	if err != nil {
+		res := Response{Message: "Error searching items in the database"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+	defer rows.CLose()
+	
+	var items []map[string]interface{}
+	for rows.Next() {
+		var id int
+		var name, category, imageName string
+		if err := rows.Scan(&id, &name, &category, &imageName); err != nil {
+			res := Response{Message: "Error scanning rows"}
+			return c.JSON(http.StatusInternalServerError, res)
+		}
+		newItem := map[string]interface{}{
+			"name":     name,
+			"category": category,
+			// Include other item details if needed
+		}
+		items = append(items, newItem)
+	}
+
+	response := map[string]interface{}{"items": items}
+	return c.JSON(http.StatusOK, response)
 }
 
 				
