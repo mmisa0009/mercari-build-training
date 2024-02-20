@@ -15,13 +15,12 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
 	ImgDir = "images"
 )
-
-var nextID int=1
 
 type ImageDetails struct {
 	Name string `json:"name"`
@@ -52,35 +51,26 @@ func addItem(c echo.Context) error {
 
     fileHash := hashImage(file)
 
-    items, err := loadItems()
+    db, err := initDB()
     if err != nil {
-        res := Response{Message: "Error loading items"}
+        res := Response{Message: "Error initializing database"}
         return c.JSON(http.StatusInternalServerError, res)
     }
+    defer db.Close()
 
-    id := nextID
-    nextID++
+    _, err = db.Exec("INSERT INTO items (name, category, image_name) VALUES (?, ?, ?)",
+		name, category, fileHash+".jpg")
+	if err != nil {
+		res := Response{Message: "Error saving item to database"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
 
-    newItem := map[string]interface{}{
-	    "id": id, 
-	    "name": name, 
-	    "category": category, "image_name": fileHash +".jpg",
-    
-    }
-    items = append(items, newItem)
-
-    err = saveItems(items)
-    if err != nil {
-        res := Response{Message: "Error saving item"}
-        return c.JSON(http.StatusInternalServerError, res)
-    }
-
-    message := fmt.Sprintf("item received: %s, Category:%s, ID: %d", name, category, id)
-    imageDetails := ImageDetails{Name: file.Filename, Path: ImgDir + "/" + fileHash + ".jpg"}
-    res := Response{Message: message, ImageDetails: imageDetails}
-    return c.JSON(http.StatusOK, res)
+	message := fmt.Sprintf("item received: %s, Category:%s", name, category)
+	imageDetails := ImageDetails{Name: file.Filename, Path: ImgDir + "/" + fileHash + ".jpg"}
+	res := Response{Message: message, ImageDetails: imageDetails}
+	return c.JSON(http.StatusOK, res)
 }
-
+    
 func loadItems() ([]map[string]interface{}, error) {
     file, err := os.ReadFile("items.json")
     if err != nil {
@@ -111,32 +101,77 @@ func saveItems(items []map[string]interface{}) error {
 }
 
 func getItems(c echo.Context) error {
-	items, err:= loadItems()
+	db, err:= initDB()
 	if err!= nil {
 		res := Response{Message: "Error loading items"}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
+	defer db.Close()
+
+	rows, err:= db.Query("SELECT * FROM items")
+	if err != nil {
+		res := Response{Message: "Error retrieveing items from database"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+	defer rows.Close()
+
+	var items []map[string]interface{}
+	for rows.Next() {
+		var id int
+		var name, category, imageName string
+		if err:= rows.Scan(&id, &name, &category, &imageName); err != nil {
+			res := Response{Message: "Error scanning rows"}
+			return c.JSON(http.StatusInternalServerError, res)
+		}
+		newItem := map[string]interface{}{
+			"id": id,
+			"name": name,
+			"category": category,
+			"image_name": imageName,
+		}
+		items= append(items, newItem)
+	}
+
 	return c.JSON(http.StatusOK, items)
+}
+
+func initDB() (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", "mercari.sqlite3")
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
 }
 
 func getItemDetails(c echo.Context) error {
     itemID := c.Param("item_id")
 
-    items, err := loadItems()
+    db, err := initDB()
     if err != nil {
-        res := Response{Message: "Error loading items"}
+        res := Response{Message: "Error initializing database"}
         return c.JSON(http.StatusInternalServerError, res)
     }
+    defer db.Close()
 
-    for _, item := range items {
-        if id, ok := item["id"].(float64); ok && strconv.Itoa(int(id)) == itemID {
-            return c.JSON(http.StatusOK, item)
-        }
-    }
+    row := db.QueryRow("SELECT * FROM items WHERE id = ?", itemID)
 
-    res := Response{Message: "Item not found"}
-    return c.JSON(http.StatusNotFound, res)
+    var id int
+    var name, category, imageName string
+    err = row.Scan(&id, &name, &category, &imageName)
+    if err != nil {
+		res := Response{Message: "Error retrieving item details from database"}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+    itemDetails := map[string]interface{}{
+		"id":         id,
+		"name":       name,
+		"category":   category,
+		"image_name": imageName,
+	}
+
+	return c.JSON(http.StatusOK, itemDetails)
 }
 				
 func getImg(c echo.Context) error {
