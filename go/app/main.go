@@ -173,6 +173,14 @@ func getItemDetails(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, itemDetails)
 }
+
+func searchItems(c echo.Context) error {
+	keyword := c.QueryParam("keyword")
+
+	message := Response{Message: message}
+	return c.JSON(http.StatusOK, res)
+}
+
 				
 func getImg(c echo.Context) error {
 	// Create image path
@@ -233,6 +241,7 @@ func main() {
 	e.GET("/items", getItems)
 	e.GET("/items/:item_id", getItemDetails)
 	e.GET("/image/:imageFilename", getImg)
+	e.GET("/search", searchItems)
 
 
 	// Start server
