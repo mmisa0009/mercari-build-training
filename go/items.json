@@ -1,1 +1,28 @@
-[]
+[
+  {
+    "category": "",
+    "id": 1,
+    "name": "jacket"
+  },
+  {
+    "category": "fashion",
+    "id": 2,
+    "name": "jacket"
+  },
+  {
+    "category": "fashion",
+    "id": 3,
+    "name": "jacket"
+  },
+  {
+    "category": "fashion",
+    "id": 1,
+    "name": "jacket"
+  },
+  {
+    "category": "fashion",
+    "id": 1,
+    "image_name": "59279ba0f5d23bc7b24a3d50c1def84c5fcdc9fb5b457f4464d3a17ccc27cd3d.jpg",
+    "name": "jacket"
+  }
+]
