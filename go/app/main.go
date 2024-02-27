@@ -120,40 +120,17 @@ func getItems(c echo.Context) error {
 }
 
 func initDB() (*sql.DB, error) {
-	// Get the absolute path to the directory where the Go application is located
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Errorf("Error getting absolute path: %v", err)
-		return nil, err
-	}
+
 
 	// Construct the absolute path to the SQLite database file
-	dbPath := filepath.Join(dir, "mercari.sqlite3")
+	dbPath := "/Users/misaki/mercari-build-training/go/mercari.sqlite3"
+	log.Printf("Database Path: %s", dbPath)
+
 
 	// Open the SQLite database
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		log.Errorf("Error opening database: %v", err)
-		return nil, err
-	}
-
-	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS categories (
-			id INTEGER PRIMARY KEY,
-			name TEXT
-		);
-
-		CREATE TABLE IF NOT EXISTS items (
-			id INTEGER PRIMARY KEY,
-			name TEXT,
-			category_id INTEGER,
-			image_name TEXT,
-			FOREIGN KEY (category_id) REFERENCES categories (id)
-		);
-	`)
-
-	if err != nil {
-		log.Errorf("Error creating tables: %v", err)
 		return nil, err
 	}
 
@@ -201,10 +178,11 @@ func searchItems(c echo.Context) error {
 	defer db.Close()
 
 	query := `
-        SELECT items.name, categories.name AS category
-        FROM items
-        JOIN categories ON items.category_id = categories.id
-        WHERE items.name LIKE ?`
+    SELECT items.name, categories.name AS category
+    FROM items
+    JOIN categories ON items.category_id = categories.id
+    WHERE items.name LIKE '%' || ? || '%' COLLATE NOCASE`
+
 
 	rows, err := db.Query(query, "%"+keyword+"%")
 	if err != nil {
