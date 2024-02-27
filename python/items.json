@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "uuid": "d15c7273-0805-465f-a11f-713787c2ed7f",
+    "name": "jacket",
+    "category": "fashion"
+  },
+  {
+    "id": 2,
+    "uuid": "45b90737-c1d6-4578-a883-c666918ce320",
+    "name": "jacket",
+    "category": "fashion"
+  },
+  {
+    "id": 3,
+    "uuid": "0617f7eb-bb9e-41ee-8cd9-96b61723e3c4",
+    "name": "jacket",
+    "category": "fashion"
+  },
+  {
+    "id": 4,
+    "uuid": "c76e0777-20ee-4b66-8d4c-0279d92c59c1",
+    "name": "jacket",
+    "category": "fashion"
+  },
+  {
+    "id": 5,
+    "uuid": "e97adc37-92ab-4e35-bef7-f6eb9224f0cf",
+    "name": "jacket",
+    "category": "fashion"
+  }
+]

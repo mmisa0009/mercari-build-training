@@ -1,7 +1,9 @@
 import os
+import json
 import logging
 import pathlib
-from fastapi import FastAPI, Form, HTTPException
+import uuid
+from fastapi import FastAPI, Form, HTTPException, Path
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -23,12 +25,39 @@ app.add_middleware(
 def root():
     return {"message": "Hello, world!"}
 
+def load_items_from_json():
+    items_path = pathlib.Path(__file__).parent.resolve() / "items.json"
+    try:
+        with open(items_path, "r") as file:
+            items = json.load(file)
+    except FileNotFoundError:
+        items = []
+    return items
 
+
+def save_items_to_json(items):
+    items_path = pathlib.Path(__file__).parent.resolve() / "items.json"
+    with open(items_path, "w") as file:
+        json.dump(items, file, indent=2)
+        
 @app.post("/items")
-def add_item(name: str = Form(...)):
-    logger.info(f"Receive item: {name}")
-    return {"message": f"item received: {name}"}
+def add_item(name: str = Form(...), category: str = Form(...)):
+    logger.info(f"Received item: {name}")
+    items = load_items_from_json()
+#made unique ID?
+    new_id = str(uuid.uuid4())
 
+    new_item = {"id": new_id, "name":name, "category":category}
+    items.append(new_item)
+    save_items_to_json(items)
+    return {"message": f"item received: {name}", "item_id": new_id}
+
+
+
+
+@app.get("/items")
+def read_items():
+    return {"message": "Listing items"}
 
 @app.get("/image/{image_name}")
 async def get_image(image_name):
@@ -43,3 +72,18 @@ async def get_image(image_name):
         image = images / "default.jpg"
 
     return FileResponse(image)
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int = Path(..., title="The ID of the item you want to retrieve")):
+    items = load_items_from_json()  
+    item = next((item for item in items if item.get("id") == item_id), None)
+
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return {"item_id": item_id, "details": item}
+
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return {"item_id": item_id, "details": item}
