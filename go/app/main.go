@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -121,11 +120,9 @@ func getItems(c echo.Context) error {
 
 func initDB() (*sql.DB, error) {
 
-
 	// Construct the absolute path to the SQLite database file
 	dbPath := "/Users/misaki/mercari-build-training/go/mercari.sqlite3"
 	log.Printf("Database Path: %s", dbPath)
-
 
 	// Open the SQLite database
 	db, err := sql.Open("sqlite3", dbPath)
@@ -182,7 +179,6 @@ func searchItems(c echo.Context) error {
     FROM items
     JOIN categories ON items.category_id = categories.id
     WHERE items.name LIKE '%' || ? || '%' COLLATE NOCASE`
-
 
 	rows, err := db.Query(query, "%"+keyword+"%")
 	if err != nil {
