@@ -118,10 +118,11 @@ func getItems(c echo.Context) error {
 	return c.JSON(http.StatusOK, items)
 }
 
+var dbPath = "/app/mercari.sqlite3"
+
 func initDB() (*sql.DB, error) {
 
 	// Construct the absolute path to the SQLite database file
-	dbPath := "/Users/misaki/mercari-build-training/go/mercari.sqlite3"
 	log.Printf("Database Path: %s", dbPath)
 
 	// Open the SQLite database
