@@ -10,7 +10,8 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-COPY . /app
+COPY db/ /app/db/  
+COPY mercari.sqlite3 /app/  
 
 COPY /app/main.go ./
 
