@@ -41,5 +41,5 @@ jobs:
       run: |
         pwd
         ls -la
-        docker build -t ${{ steps.meta.outputs.tags }} -f step6/dockerfile .
+        docker build -t ${{ steps.meta.outputs.tags }} -f dockerfile .
         docker push ${{ steps.meta.outputs.tags }}
