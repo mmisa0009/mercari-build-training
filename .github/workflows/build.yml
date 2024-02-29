@@ -38,8 +38,18 @@ jobs:
         echo 'Label: ${{ steps.meta.labels.tags }}'
 
     - name: Build and push Docker image
+      uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+      with:
+        context: step6
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+   
+
+    - name: Debug
       run: |
-        pwd
-        ls -la
-        docker build -t ${{ steps.meta.outputs.tags }} -f dockerfile .
-        docker push ${{ steps.meta.outputs.tags }}
+        echo 'GitHub Actions Workspace:'
+        echo $GITHUB_WORKSPACE
+        echo 'Contents of GitHub Actions Workspace:'
+        ls -la $GITHUB_WORKSPACE
+
