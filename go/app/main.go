@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -45,7 +44,7 @@ func addItem(c echo.Context) error {
 
 	fileHash := hashImage(file)
 
-	db, err := initDB()
+	db := connectDB(c)
 	if err != nil {
 		res := Response{Message: "Error initializing database"}
 		return c.JSON(http.StatusInternalServerError, res)
@@ -81,20 +80,21 @@ func addItem(c echo.Context) error {
 }
 
 func getItems(c echo.Context) error {
-	db, err := initDB()
-	if err != nil {
-		res := Response{Message: "Error loading items"}
-		return c.JSON(http.StatusInternalServerError, res)
-	}
+	db := connectDB(c)
 	defer db.Close()
+	query := `
+	SELECT items.id, items.name, categories.name AS category, items.image_name
+	FROM items
+	JOIN categories ON items.category_id = categories.id
+`
 
-	rows, err := db.Query(`
-        SELECT items.id, items.name, categories.name AS category, items.image_name
-        FROM items
-        JOIN categories ON items.category_id = categories.id
-    `)
+	c.Logger().Infof("Executing query: %s", query)
+
+	rows, err := db.Query(query)
+
 	if err != nil {
-		res := Response{Message: "Error retrieving items from database"}
+		c.Logger().Errorf("Error executing query: %v", err)
+		res := Response{Message: fmt.Sprintf("Error executing query: %v", err)}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 	defer rows.Close()
@@ -104,7 +104,8 @@ func getItems(c echo.Context) error {
 		var id int
 		var name, category, imageName string
 		if err := rows.Scan(&id, &name, &category, &imageName); err != nil {
-			res := Response{Message: "Error scanning rows"}
+			c.Logger().Errorf("Error scanning rows: %v", err)
+			res := Response{Message: fmt.Sprintf("Error scanning rows: %v", err)}
 			return c.JSON(http.StatusInternalServerError, res)
 		}
 		newItem := map[string]interface{}{
@@ -119,39 +120,26 @@ func getItems(c echo.Context) error {
 	return c.JSON(http.StatusOK, items)
 }
 
-func initDB() (*sql.DB, error) {
-
-
-	// Construct the absolute path to the SQLite database file
-	dbPath := "/Users/misaki/mercari-build-training/go/mercari.sqlite3"
-	log.Printf("Database Path: %s", dbPath)
-
-
-	// Open the SQLite database
-	db, err := sql.Open("sqlite3", dbPath)
+func connectDB(c echo.Context) *sql.DB {
+	// dbOpen
+	db, err := sql.Open("sqlite3", "/app/db/mercari.sqlite3")
 	if err != nil {
-		log.Errorf("Error opening database: %v", err)
-		return nil, err
+		c.Logger().Fatalf("No connection to the database: %v", err)
 	}
-
-	return db, nil
+	return db
 }
 
 func getItemDetails(c echo.Context) error {
 	itemID := c.Param("item_id")
 
-	db, err := initDB()
-	if err != nil {
-		res := Response{Message: "Error initializing database"}
-		return c.JSON(http.StatusInternalServerError, res)
-	}
+	db := connectDB(c)
 	defer db.Close()
 
 	row := db.QueryRow("SELECT * FROM items WHERE id = ?", itemID)
 
 	var id int
 	var name, category, imageName string
-	err = row.Scan(&id, &name, &category, &imageName)
+	err := row.Scan(&id, &name, &category, &imageName)
 	if err != nil {
 		res := Response{Message: "Error retrieving item details from database"}
 		return c.JSON(http.StatusInternalServerError, res)
@@ -170,11 +158,7 @@ func getItemDetails(c echo.Context) error {
 func searchItems(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
 
-	db, err := initDB()
-	if err != nil {
-		log.Errorf("Error initializing database: %v", err)
-		return c.JSON(http.StatusInternalServerError, Response{Message: "Error initializing database"})
-	}
+	db := connectDB(c)
 	defer db.Close()
 
 	query := `
@@ -182,7 +166,6 @@ func searchItems(c echo.Context) error {
     FROM items
     JOIN categories ON items.category_id = categories.id
     WHERE items.name LIKE '%' || ? || '%' COLLATE NOCASE`
-
 
 	rows, err := db.Query(query, "%"+keyword+"%")
 	if err != nil {
