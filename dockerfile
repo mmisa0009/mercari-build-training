@@ -6,16 +6,16 @@ RUN addgroup -S mercari && adduser -S trainee -G mercari
 
 WORKDIR /app
 
-COPY go.mod .
-COPY go.sum .
+COPY go/go.mod .
+COPY go/go.sum .
 RUN go mod download
 
-COPY db/ /app/db/  
-COPY mercari.sqlite3 /app/  
+COPY ../db/ /app/db/  
+COPY ../db/mercari.sqlite3 /app/db/
 
-COPY /app/main.go ./
+COPY go/app/main.go ./
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/mywebserver
+RUN CGO_ENABLED=1 GOOS=linux go build -o /app/mywebserver
 
 
 EXPOSE 9000
