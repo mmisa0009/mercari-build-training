@@ -124,7 +124,7 @@ func connectDB(c echo.Context) *sql.DB {
 	// dbOpen
 	db, err := sql.Open("sqlite3", "/app/db/mercari.sqlite3")
 	if err != nil {
-		c.Logger().Fatalf("No connection to the database: %v", err)
+		c.Logger().Errorf("No connection to the database: %v", err)
 	}
 	return db
 }
